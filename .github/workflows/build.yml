@@ -1,4 +1,4 @@
-name: Build Solana v1.18.20
+name: Build Solana
 
 on:
   workflow_dispatch:
@@ -8,25 +8,16 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout Solana v1.18.20
-      run: |
-        git clone --depth 1 --branch v1.18.20 https://github.com/solana-labs/solana.git
-        cd solana
-        echo "BUILD_DIR=$(pwd)" >> $GITHUB_ENV
-
-    - name: Install dependencies
-      run: |
-        sudo apt update
-        sudo apt install -y curl git build-essential pkg-config libssl-dev libudev-dev clang cmake
-
-    - name: Build Solana
-      run: |
-        cd $BUILD_DIR/solana
-        cargo build --release
-
-    - name: Upload Solana binary
-      uses: actions/upload-artifact@v4
-      with:
-        name: solana-bin
-        path: |
-          ${{ env.BUILD_DIR }}/solana/target/release/solana
+      - uses: actions/checkout@v4
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+      - name: Build
+        run: cargo build --release
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: solana-release
+          path: target/release/
